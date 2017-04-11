@@ -1,0 +1,21 @@
+{
+  "name": "tutorial",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-calc": "budo calc-browser-client.js"
+  },
+  "keywords": [],
+  "author": "Blaine Bublitz <blaine.bublitz@gmail.com> (https://github.com/phated)",
+  "license": "MIT",
+  "dependencies": {
+    "thrift": "^0.10.0",
+    "thrift-parser": "^0.3.0"
+  },
+  "devDependencies": {
+    "browserify-shim": "^3.8.14",
+    "budo": "^9.4.7"
+  }
+}
