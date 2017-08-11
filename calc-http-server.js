@@ -68,7 +68,7 @@ var handlers = {
 
 var app = express();
 
-app.use('/tutorial', cors(), bodyParser.raw({ type: '*/*' }), thriftExpress(Calculator, handlers, { protocol: 'json' }));
+app.use('/tutorial', cors(), bodyParser.raw({ type: () => true }), thriftExpress(Calculator, handlers));
 
 app.listen(9090);
 

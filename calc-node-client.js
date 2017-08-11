@@ -5,9 +5,10 @@ var ttypes = require('./gen-nodejs/tutorial_types');
 var transport = thrift.TBufferedTransport;
 var protocol = thrift.TBinaryProtocol;
 
-var connection = thrift.createConnection("localhost", 9090, {
+var connection = thrift.createHttpConnection("localhost", 9090, {
   transport : transport,
-  protocol : protocol
+  protocol : protocol,
+  path: '/tutorial'
 });
 
 connection.on('error', function(err) {
@@ -52,6 +53,6 @@ client.calculate(1, work, function(err, message) {
     console.log('Check log: ' + message.value);
 
     //close the connection once we're done
-    connection.end();
+    // connection.end();
   });
 });
