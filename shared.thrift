@@ -35,6 +35,16 @@ struct SharedStruct {
   2: string value
 }
 
+struct CollectionStruct {
+  1: map<string,bool> map1
+  2: list<bool> list1
+  3: set<string> set1 = ['1','2','2']
+}
+
 service SharedService {
   SharedStruct getStruct(1: i32 key)
+}
+
+service AnotherService {
+
 }
