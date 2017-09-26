@@ -21,23 +21,23 @@ var ttypes = require('./tutorial_types');
 var Calculator_ping_args = function(args) {
 };
 Calculator_ping_args.prototype = {};
-Calculator_ping_args.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
+Calculator_ping_args.prototype.read = async function(input) {
+    await input.readStructBegin();
+    while (true)
+    {
+      var ret = await input.readFieldBegin();
+      var fname = ret.fname;
+      var ftype = ret.ftype;
+      var fid = ret.fid;
+      if (ftype == Thrift.Type.STOP) {
+        break;
+      }
+      await input.skip(ftype);
+      await input.readFieldEnd();
     }
-    input.skip(ftype);
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
+    await input.readStructEnd();
+    return;
+  };
 
 Calculator_ping_args.prototype.write = function(output) {
   output.writeStructBegin('Calculator_ping_args');
@@ -87,41 +87,41 @@ var Calculator_add_args = function(args) {
   }
 };
 Calculator_add_args.prototype = {};
-Calculator_add_args.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
+Calculator_add_args.prototype.read = async function(input) {
+    await input.readStructBegin();
+    while (true)
     {
-      case 1:
-      if (ftype == Thrift.Type.I32) {
-        this.num1 = input.readI32();
-      } else {
-        input.skip(ftype);
+      var ret = await input.readFieldBegin();
+      var fname = ret.fname;
+      var ftype = ret.ftype;
+      var fid = ret.fid;
+      if (ftype == Thrift.Type.STOP) {
+        break;
       }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.I32) {
-        this.num2 = input.readI32();
-      } else {
-        input.skip(ftype);
+      switch (fid)
+      {
+        case 1:
+        if (ftype == Thrift.Type.I32) {
+          this.num1 = await input.readI32();
+        } else {
+          await input.skip(ftype);
+        }
+        break;
+        case 2:
+        if (ftype == Thrift.Type.I32) {
+          this.num2 = await input.readI32();
+        } else {
+          await input.skip(ftype);
+        }
+        break;
+        default:
+          await input.skip(ftype);
       }
-      break;
-      default:
-        input.skip(ftype);
+      await input.readFieldEnd();
     }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
+    await input.readStructEnd();
+    return;
+  };
 
 Calculator_add_args.prototype.write = function(output) {
   output.writeStructBegin('Calculator_add_args');
@@ -206,42 +206,42 @@ var Calculator_calculate_args = function(args) {
   }
 };
 Calculator_calculate_args.prototype = {};
-Calculator_calculate_args.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
+Calculator_calculate_args.prototype.read = async function(input) {
+    await input.readStructBegin();
+    while (true)
     {
-      case 1:
-      if (ftype == Thrift.Type.I32) {
-        this.logid = input.readI32();
-      } else {
-        input.skip(ftype);
+      var ret = await input.readFieldBegin();
+      var fname = ret.fname;
+      var ftype = ret.ftype;
+      var fid = ret.fid;
+      if (ftype == Thrift.Type.STOP) {
+        break;
       }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRUCT) {
-        this.w = new ttypes.Work();
-        this.w.read(input);
-      } else {
-        input.skip(ftype);
+      switch (fid)
+      {
+        case 1:
+        if (ftype == Thrift.Type.I32) {
+          this.logid = await input.readI32();
+        } else {
+          await input.skip(ftype);
+        }
+        break;
+        case 2:
+        if (ftype == Thrift.Type.STRUCT) {
+          this.w = new ttypes.Work();
+          await this.w.read(input);
+        } else {
+          await input.skip(ftype);
+        }
+        break;
+        default:
+          await input.skip(ftype);
       }
-      break;
-      default:
-        input.skip(ftype);
+      await input.readFieldEnd();
     }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
+    await input.readStructEnd();
+    return;
+  };
 
 Calculator_calculate_args.prototype.write = function(output) {
   output.writeStructBegin('Calculator_calculate_args');
@@ -565,143 +565,98 @@ CalculatorClient.prototype.send_zip = function() {
   output.writeMessageEnd();
   return this.output.flush();
 };
-var CalculatorProcessor = exports.Processor = function(handler) {
-  this._handler = handler;
-}
-;
-Thrift.inherits(CalculatorProcessor, SharedServiceProcessor);
-CalculatorProcessor.prototype.process = function(input, output) {
-  var r = input.readMessageBegin();
-  if (this['process_' + r.fname]) {
-    return this['process_' + r.fname].call(this, r.rseqid, input, output);
-  } else {
-    input.skip(Thrift.Type.STRUCT);
-    input.readMessageEnd();
-    var x = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN_METHOD, 'Unknown function ' + r.fname);
-    output.writeMessageBegin(r.fname, Thrift.MessageType.EXCEPTION, r.rseqid);
-    x.write(output);
-    output.writeMessageEnd();
-    output.flush();
+
+var CalculatorProcessor = exports.Processor = function(handler)   {
+    this._handler = handler;
   }
-}
 ;
-CalculatorProcessor.prototype.process_ping = function(seqid, input, output) {
-  var args = new Calculator_ping_args();
-  args.read(input);
-  input.readMessageEnd();
-  if (this._handler.ping.length === 0) {
-    Q.fcall(this._handler.ping)
-      .then(function(result) {
-        var result_obj = new Calculator_ping_result({success: result});
-        output.writeMessageBegin("ping", Thrift.MessageType.REPLY, seqid);
-        result_obj.write(output);
-        output.writeMessageEnd();
-        output.flush();
-      }, function (err) {
-        var result;
-        result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-        output.writeMessageBegin("ping", Thrift.MessageType.EXCEPTION, seqid);
-        result.write(output);
-        output.writeMessageEnd();
-        output.flush();
-      });
-  } else {
-    this._handler.ping(function (err, result) {
-      var result_obj;
-      if ((err === null || typeof err === 'undefined')) {
-        result_obj = new Calculator_ping_result((err !== null || typeof err === 'undefined') ? err : {success: result});
-        output.writeMessageBegin("ping", Thrift.MessageType.REPLY, seqid);
-      } else {
-        result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-        output.writeMessageBegin("ping", Thrift.MessageType.EXCEPTION, seqid);
-      }
-      result_obj.write(output);
-      output.writeMessageEnd();
-      output.flush();
-    });
+  Thrift.inherits(CalculatorProcessor, SharedServiceProcessor);
+  CalculatorProcessor.prototype.process = async function(protocol)   {
+    var r = await protocol.readMessageBegin();
+    console.log(r);
+    if (this['process_' + r.fname]) {
+      return this['process_' + r.fname].call(this, r.rseqid, protocol);
+    } else {
+      await protocol.skip(Thrift.Type.STRUCT);
+      await protocol.readMessageEnd();
+      var x = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN_METHOD, 'Unknown function ' + r.fname);
+      protocol.writeMessageBegin(r.fname, Thrift.MessageType.EXCEPTION, r.rseqid);
+      x.write(protocol);
+      protocol.writeMessageEnd();
+      protocol.flush();
+    }
   }
-};
-CalculatorProcessor.prototype.process_add = function(seqid, input, output) {
-  var args = new Calculator_add_args();
-  args.read(input);
-  input.readMessageEnd();
-  if (this._handler.add.length === 2) {
-    Q.fcall(this._handler.add, args.num1, args.num2)
+;
+  CalculatorProcessor.prototype.process_ping = async function(seqid, protocol)   {
+    var args = new Calculator_ping_args();
+    await args.read(protocol);
+    await protocol.readMessageEnd();
+    try {
+      var result = await Q.fcall(this._handler.ping)
+      var result_obj = new Calculator_ping_result({success: result});
+      protocol.writeMessageBegin("ping", Thrift.MessageType.REPLY, seqid);
+      result_obj.write(protocol);
+      protocol.writeMessageEnd();
+      protocol.flush();
+    } catch(err) {
+      var result;
+      result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+      protocol.writeMessageBegin("ping", Thrift.MessageType.EXCEPTION, seqid);
+      result.write(protocol);
+      protocol.writeMessageEnd();
+      protocol.flush();
+    }
+  };
+  CalculatorProcessor.prototype.process_add = async function(seqid, protocol)   {
+    var args = new Calculator_add_args();
+    await args.read(protocol);
+    await protocol.readMessageEnd();
+    await Q.fcall(this._handler.add, args.num1, args.num2)
       .then(function(result) {
         var result_obj = new Calculator_add_result({success: result});
-        output.writeMessageBegin("add", Thrift.MessageType.REPLY, seqid);
-        result_obj.write(output);
-        output.writeMessageEnd();
-        output.flush();
+        protocol.writeMessageBegin("add", Thrift.MessageType.REPLY, seqid);
+        result_obj.write(protocol);
+        protocol.writeMessageEnd();
+        protocol.flush();
       }, function (err) {
         var result;
         result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-        output.writeMessageBegin("add", Thrift.MessageType.EXCEPTION, seqid);
-        result.write(output);
-        output.writeMessageEnd();
-        output.flush();
+        protocol.writeMessageBegin("add", Thrift.MessageType.EXCEPTION, seqid);
+        result.write(protocol);
+        protocol.writeMessageEnd();
+        protocol.flush();
       });
-  } else {
-    this._handler.add(args.num1, args.num2, function (err, result) {
-      var result_obj;
-      if ((err === null || typeof err === 'undefined')) {
-        result_obj = new Calculator_add_result((err !== null || typeof err === 'undefined') ? err : {success: result});
-        output.writeMessageBegin("add", Thrift.MessageType.REPLY, seqid);
-      } else {
-        result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-        output.writeMessageBegin("add", Thrift.MessageType.EXCEPTION, seqid);
-      }
-      result_obj.write(output);
-      output.writeMessageEnd();
-      output.flush();
-    });
-  }
-};
-CalculatorProcessor.prototype.process_calculate = function(seqid, input, output) {
-  var args = new Calculator_calculate_args();
-  args.read(input);
-  input.readMessageEnd();
-  if (this._handler.calculate.length === 2) {
-    Q.fcall(this._handler.calculate, args.logid, args.w)
+  };
+  CalculatorProcessor.prototype.process_calculate = async function(seqid, protocol)   {
+    var args = new Calculator_calculate_args();
+    await args.read(protocol);
+    await protocol.readMessageEnd();
+    await Q.fcall(this._handler.calculate, args.logid, args.w)
       .then(function(result) {
         var result_obj = new Calculator_calculate_result({success: result});
-        output.writeMessageBegin("calculate", Thrift.MessageType.REPLY, seqid);
-        result_obj.write(output);
-        output.writeMessageEnd();
-        output.flush();
+        protocol.writeMessageBegin("calculate", Thrift.MessageType.REPLY, seqid);
+        result_obj.write(protocol);
+        protocol.writeMessageEnd();
+        protocol.flush();
       }, function (err) {
         var result;
         if (err instanceof ttypes.InvalidOperation) {
           result = new Calculator_calculate_result(err);
-          output.writeMessageBegin("calculate", Thrift.MessageType.REPLY, seqid);
+          protocol.writeMessageBegin("calculate", Thrift.MessageType.REPLY, seqid);
         } else {
           result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-          output.writeMessageBegin("calculate", Thrift.MessageType.EXCEPTION, seqid);
+          protocol.writeMessageBegin("calculate", Thrift.MessageType.EXCEPTION, seqid);
         }
-        result.write(output);
-        output.writeMessageEnd();
-        output.flush();
+        result.write(protocol);
+        protocol.writeMessageEnd();
+        protocol.flush();
       });
-  } else {
-    this._handler.calculate(args.logid, args.w, function (err, result) {
-      var result_obj;
-      if ((err === null || typeof err === 'undefined') || err instanceof ttypes.InvalidOperation) {
-        result_obj = new Calculator_calculate_result((err !== null || typeof err === 'undefined') ? err : {success: result});
-        output.writeMessageBegin("calculate", Thrift.MessageType.REPLY, seqid);
-      } else {
-        result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-        output.writeMessageBegin("calculate", Thrift.MessageType.EXCEPTION, seqid);
-      }
-      result_obj.write(output);
-      output.writeMessageEnd();
-      output.flush();
-    });
+  };
+  CalculatorProcessor.prototype.process_zip = async function(seqid, protocol)   {
+    var args = new Calculator_zip_args();
+    await args.read(protocol);
+    await protocol.readMessageEnd();
+    // TODO: does this need to await?
+    await Q.fcall(this._handler.zip);
   }
-};
-CalculatorProcessor.prototype.process_zip = function(seqid, input, output) {
-  var args = new Calculator_zip_args();
-  args.read(input);
-  input.readMessageEnd();
-  this._handler.zip();
-}
 ;

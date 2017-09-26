@@ -22,11 +22,11 @@ var SharedService_getStruct_args = function(args) {
   }
 };
 SharedService_getStruct_args.prototype = {};
-SharedService_getStruct_args.prototype.read = function(input) {
-  input.readStructBegin();
+SharedService_getStruct_args.prototype.read = async function(input) {
+  await input.readStructBegin();
   while (true)
   {
-    var ret = input.readFieldBegin();
+    var ret = await input.readFieldBegin();
     var fname = ret.fname;
     var ftype = ret.ftype;
     var fid = ret.fid;
@@ -37,20 +37,20 @@ SharedService_getStruct_args.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.I32) {
-        this.key = input.readI32();
+        this.key = await input.readI32();
       } else {
-        input.skip(ftype);
+        await input.skip(ftype);
       }
       break;
       case 0:
-        input.skip(ftype);
+        await input.skip(ftype);
         break;
       default:
-        input.skip(ftype);
+        await input.skip(ftype);
     }
-    input.readFieldEnd();
+    await input.readFieldEnd();
   }
-  input.readStructEnd();
+  await input.readStructEnd();
   return;
 };
 
@@ -180,54 +180,38 @@ var SharedServiceProcessor = exports.Processor = function(handler) {
   this._handler = handler;
 }
 ;
-SharedServiceProcessor.prototype.process = function(input, output) {
-  var r = input.readMessageBegin();
+SharedServiceProcessor.prototype.process = async function(protocol) {
+  var r = await protocol.readMessageBegin();
   if (this['process_' + r.fname]) {
-    return this['process_' + r.fname].call(this, r.rseqid, input, output);
+    return this['process_' + r.fname].call(this, r.rseqid, protocol);
   } else {
-    input.skip(Thrift.Type.STRUCT);
-    input.readMessageEnd();
+    await protocol.skip(Thrift.Type.STRUCT);
+    await protocol.readMessageEnd();
     var x = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN_METHOD, 'Unknown function ' + r.fname);
-    output.writeMessageBegin(r.fname, Thrift.MessageType.EXCEPTION, r.rseqid);
-    x.write(output);
-    output.writeMessageEnd();
-    output.flush();
+    protocol.writeMessageBegin(r.fname, Thrift.MessageType.EXCEPTION, r.rseqid);
+    x.write(protocol);
+    protocol.writeMessageEnd();
+    protocol.flush();
   }
 }
 ;
-SharedServiceProcessor.prototype.process_getStruct = function(seqid, input, output) {
+SharedServiceProcessor.prototype.process_getStruct = async function(seqid, protocol) {
   var args = new SharedService_getStruct_args();
-  args.read(input);
-  input.readMessageEnd();
-  if (this._handler.getStruct.length === 1) {
-    Q.fcall(this._handler.getStruct, args.key)
-      .then(function(result) {
-        var result_obj = new SharedService_getStruct_result({success: result});
-        output.writeMessageBegin("getStruct", Thrift.MessageType.REPLY, seqid);
-        result_obj.write(output);
-        output.writeMessageEnd();
-        output.flush();
-      }, function (err) {
-        var result;
-        result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-        output.writeMessageBegin("getStruct", Thrift.MessageType.EXCEPTION, seqid);
-        result.write(output);
-        output.writeMessageEnd();
-        output.flush();
-      });
-  } else {
-    this._handler.getStruct(args.key, function (err, result) {
-      var result_obj;
-      if ((err === null || typeof err === 'undefined')) {
-        result_obj = new SharedService_getStruct_result((err !== null || typeof err === 'undefined') ? err : {success: result});
-        output.writeMessageBegin("getStruct", Thrift.MessageType.REPLY, seqid);
-      } else {
-        result_obj = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
-        output.writeMessageBegin("getStruct", Thrift.MessageType.EXCEPTION, seqid);
-      }
-      result_obj.write(output);
-      output.writeMessageEnd();
-      output.flush();
+  await args.read(protocol);
+  await protocol.readMessageEnd();
+  await Q.fcall(this._handler.getStruct, args.key)
+    .then(function(result) {
+      var result_obj = new SharedService_getStruct_result({success: result});
+      protocol.writeMessageBegin("getStruct", Thrift.MessageType.REPLY, seqid);
+      result_obj.write(protocol);
+      protocol.writeMessageEnd();
+      protocol.flush();
+    }, function (err) {
+      var result;
+      result = new Thrift.TApplicationException(Thrift.TApplicationExceptionType.UNKNOWN, err.message);
+      protocol.writeMessageBegin("getStruct", Thrift.MessageType.EXCEPTION, seqid);
+      result.write(protocol);
+      protocol.writeMessageEnd();
+      protocol.flush();
     });
-  }
 };

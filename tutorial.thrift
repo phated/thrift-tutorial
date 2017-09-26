@@ -73,12 +73,6 @@ namespace haxe tutorial
 namespace js tutorial
 // namespace js.ts tutorial
 
-union ComparableUnion {
-  1: string string_field = 'test';
-  2: string binary_field;
-  // 3: string dot.sep;
-}
-
 /**
  * Thrift lets you do typedefs to get pretty names for your types. Standard
  * C style here.
@@ -92,13 +86,6 @@ typedef i32 MyInteger;
  */
 const i32 INT32CONSTANT = 9853
 const map<string,string> MAPCONSTANT = {'hello':'world'; 'goodnight':'moon'}
-const set<string> SETCONSTANT = ['hello';'world']
-const map<bool, map<string, set<string>>> SETCONSTANT2 = {true: {'hello': ['hello';'world']}, false: {'goodnight':['moon']}}
-const Basic MY_STRUCT = {'name': 'blaine'}
-
-struct Basic {
-  1: string name;
-}
 
 /**
  * You can define enums, which are just 32 bit integers. Values are optional
@@ -109,19 +96,6 @@ enum Operation {
   SUBTRACT = 2,
   MULTIPLY = 3,
   DIVIDE = 4,
-  DOT.SEP = 5
-}
-
-enum Operation2 {
-  ADD
-  SUBTRACT
-  MULTIPLY
-  DIVIDE
-  // DOT.SEP
-}
-
-struct Embed {
-  1: Operation op
 }
 
 /**
@@ -138,27 +112,7 @@ struct Work {
   2: required i32 num2,
   3: Operation op,
   4: optional string comment,
-  5: MyInteger alright
-  6: binary bin,
-  7: double doub,
-  8: i64 sixfour,
-  9: i8 byt,
-  10: Embed bed,
-  11: MyInteger2 bed2,
-  // 6: map<bool, string> hmm = {false: 'test', false: 'huh'}
-  // 7: set<set<map<string, string>>> hmm2
-  // 7: set<string> hmm2 = []
-  // 7: map<set<string>, list<string>> test
-  // 8: list<string> hmm3 = []
-  // 9: set<map<bool, string>> hmm4 = [{false: 'test', false: 'huh'}]
-  // 10: set<set<string>> hmm5 = []
 }
-
-// struct NoID {
-//   i32 num0,
-//   i16 num1 = 0x7fff;
-//   i32 num2 = 0;
-// }
 
 /**
  * Structs can also be exceptions, if they are nasty.
@@ -182,8 +136,6 @@ service Calculator extends shared.SharedService {
    */
 
    void ping(),
-
-  //  void dot.sep(),
 
    i32 add(1: required i32 num1, 2:i32 num2),
 

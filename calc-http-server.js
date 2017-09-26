@@ -5,22 +5,23 @@ var SharedStruct = require("./gen-nodejs/shared_types").SharedStruct;
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var express = require('express');
-var thriftExpress = require('thrift-ts-core').thriftExpress;
+var thriftExpress = require('thrift-server-express').thriftExpress;
+
+process.on('unhandledRejection', console.log)
 
 var data = {};
 
 var handlers = {
-  ping: function(result) {
+  ping: function() {
     console.log("ping()");
-    result(null);
   },
 
-  add: function(n1, n2, result) {
+  add: function(n1, n2) {
     console.log("add(", n1, ",", n2, ")");
-    result(null, n1 + n2);
+    return n1 + n2
   },
 
-  calculate: function(logid, work, result) {
+  calculate: function(logid, work) {
     console.log("calculate(", logid, ",", work, ")");
 
     var val = 0;
@@ -35,16 +36,14 @@ var handlers = {
         var x = new ttypes.InvalidOperation();
         x.whatOp = work.op;
         x.why = 'Cannot divide by 0';
-        result(x);
-        return;
+        throw x;
       }
       val = work.num1 / work.num2;
     } else {
       var x = new ttypes.InvalidOperation();
       x.whatOp = work.op;
       x.why = 'Invalid operation';
-      result(x);
-      return;
+      throw x;
     }
 
     var entry = new SharedStruct();
@@ -52,23 +51,23 @@ var handlers = {
     entry.value = ""+val;
     data[logid] = entry;
 
-    result(null, val);
+    return val
   },
 
-  getStruct: function(key, result) {
+  getStruct: function(key) {
     console.log("getStruct(", key, ")");
-    result(null, data[key]);
+    return data[key]
   },
 
   zip: function() {
     console.log("zip()");
-    result(null);
+    return null;
   }
 }
 
 var app = express();
 
-app.use('/tutorial', cors(), bodyParser.raw({ type: () => true }), thriftExpress(Calculator, handlers));
+app.use('/tutorial', cors(), thriftExpress(Calculator, handlers));
 
 app.listen(9090);
 
