@@ -30,6 +30,8 @@ var Work = module.exports.Work = function(args) {
     }
     if (args.num2 !== undefined && args.num2 !== null) {
       this.num2 = args.num2;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field num2 is unset!');
     }
     if (args.op !== undefined && args.op !== null) {
       this.op = args.op;
@@ -40,11 +42,11 @@ var Work = module.exports.Work = function(args) {
   }
 };
 Work.prototype = {};
-Work.prototype.read = function(input) {
-  input.readStructBegin();
+Work.prototype.read = async function(input) {
+  await input.readStructBegin();
   while (true)
   {
-    var ret = input.readFieldBegin();
+    var ret = await input.readFieldBegin();
     var fname = ret.fname;
     var ftype = ret.ftype;
     var fid = ret.fid;
@@ -55,38 +57,38 @@ Work.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.I32) {
-        this.num1 = input.readI32();
+        this.num1 = await input.readI32();
       } else {
-        input.skip(ftype);
+        await input.skip(ftype);
       }
       break;
       case 2:
       if (ftype == Thrift.Type.I32) {
-        this.num2 = input.readI32();
+        this.num2 = await input.readI32();
       } else {
-        input.skip(ftype);
+        await input.skip(ftype);
       }
       break;
       case 3:
       if (ftype == Thrift.Type.I32) {
-        this.op = input.readI32();
+        this.op = await input.readI32();
       } else {
-        input.skip(ftype);
+        await input.skip(ftype);
       }
       break;
       case 4:
       if (ftype == Thrift.Type.STRING) {
-        this.comment = input.readString();
+        this.comment = await input.readString();
       } else {
-        input.skip(ftype);
+        await input.skip(ftype);
       }
       break;
       default:
-        input.skip(ftype);
+        await input.skip(ftype);
     }
-    input.readFieldEnd();
+    await input.readFieldEnd();
   }
-  input.readStructEnd();
+  await input.readStructEnd();
   return;
 };
 
